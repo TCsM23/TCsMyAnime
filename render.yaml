@@ -16,7 +16,7 @@ services:
     startCommand: gunicorn config.wsgi:application
     envVars:
       - key: DATABASE_URL
-        sync: postgresql://neondb_owner:npg_XjnDYM0ciC6U@ep-dawn-shape-a1x9szhz-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+        sync: false
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: DJANGO_DEBUG
