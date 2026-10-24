@@ -1,5 +1,7 @@
 # TCsMyAnime: Anime Tracker (Django)
 
+**Live demo:** https://YOUR-SITE.onrender.com *(free hosting: the first load can take about a minute while the site wakes up)*
+
 A watchlist app with user accounts, status, ratings, and episode progress. Anime data comes from [AniList](https://anilist.co) by default, or from [Jikan](https://docs.api.jikan.moe) (unofficial MyAnimeList API) if you set `ANIME_API=jikan`. A stats page uses pandas to break down genres and completion rate.
 
 ## Run it (Windows)
@@ -91,27 +93,42 @@ Tested on PostgreSQL 16. The database file is never committed (see `.gitignore`)
 
 ## Deploying to Render
 
-1. Push the repo to GitHub.
-2. In Render: **New → Blueprint**, pick the repo. `render.yaml` creates a free PostgreSQL database and the web service, and connects them.
-3. When asked, fill in `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_EMAIL` and `DJANGO_SUPERUSER_PASSWORD` (your admin account, created on the first build).
-4. Each deploy runs `build.sh`: install → `collectstatic` → `migrate` → create admin if missing. gunicorn serves the site, WhiteNoise the static files.
+## Deploying to Render (with Neon PostgreSQL)
 
-Free-plan limits: the site sleeps after 15 minutes idle (about a minute to wake), and the free database expires after 30 days. There's no shell or cron on the free plan, so run `import_catalog` / `fill_missing` / `refresh_airing` from your PC against the database's **External** URL:
+The site runs as a Render **web service**; the database is a free **Neon** PostgreSQL (Render allows one free database per account, and Neon's free plan doesn't expire).
+
+1. **Neon:** create a project (region: Singapore), click **Connect**, turn **Connection pooling off**, and copy the connection string.
+2. **Render:** New → Web Service → pick this repo, then:
+
+| Setting | Value |
+|---|---|
+| Region | Singapore (same as the database) |
+| Build Command | `bash build.sh` |
+| Start Command | `gunicorn config.wsgi:application` |
+| Instance Type | Free |
+
+3. **Environment variables** (set in Render, never committed):
+
+| Key | Value |
+|---|---|
+| `DATABASE_URL` | Neon connection string |
+| `DJANGO_SECRET_KEY` | Generate |
+| `DJANGO_DEBUG` | `0` |
+| `ANIME_API` | `anilist` |
+| `PYTHON_VERSION` | `3.13.5` |
+| `DJANGO_SUPERUSER_USERNAME` / `_EMAIL` / `_PASSWORD` | admin account, created on first deploy |
+
+Each deploy runs `build.sh`: install → `collectstatic` → `migrate` → create admin if missing. gunicorn serves the site, WhiteNoise the static files. Every push to `main` redeploys.
+
+**Free-plan notes:** the site sleeps after 15 minutes idle. There's no shell or cron, so run maintenance commands from your PC against Neon:
 
 ```powershell
-$env:DATABASE_URL = "<External Database URL from Render>"
-python manage.py import_catalog --pages 5
+$env:DATABASE_URL = "<Neon connection string>"
+python manage.py import_catalog --pages 5   # or fill_missing / refresh_airing
 Remove-Item Env:DATABASE_URL
 ```
 
-| Variable | Set by | Notes |
-|---|---|---|
-| `DATABASE_URL` | Blueprint | from the Render database |
-| `DJANGO_SECRET_KEY` | Blueprint | generated |
-| `DJANGO_DEBUG` | Blueprint | `0` |
-| `ANIME_API` | Blueprint | `anilist` or `jikan` |
-| `DJANGO_SUPERUSER_*` | You | admin login |
-| `DJANGO_ALLOWED_HOSTS` | Optional | extra domains; Render's own hostname is added automatically |
+`render.yaml` is an optional Blueprint version of the same setup (web service only).
 
 ## Ideas for next steps (community features)
 
