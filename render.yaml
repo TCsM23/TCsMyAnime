@@ -1,11 +1,3 @@
-# Render Blueprint: in the Render dashboard choose New > Blueprint and pick this repo.
-# It creates the Postgres database and the web service, and wires DATABASE_URL between them.
-databases:
-  - name: tcsmyanime-db
-    plan: free
-    databaseName: tcsmyanime
-    user: tcsmyanime
-
 # Render Blueprint: web service only. The database is external (Neon), set via DATABASE_URL.
 services:
   - type: web
