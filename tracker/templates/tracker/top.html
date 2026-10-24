@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Top Anime · TCsMyAnime{% endblock %}
+{% block content %}
+<h1>Top anime</h1>
+<nav class="main-watchlist-filters">
+  {% for key, label in filters %}
+    <a href="?{% if key %}filter={{ key }}{% endif %}" class="{% if active == key %}is-active{% endif %}">{{ label }}</a>
+  {% endfor %}
+</nav>
+
+{% if error %}<p class="search-results-error">{{ error }}</p>{% endif %}
+
+<div class="catalog-grid-list">
+  {% for a in results %}{% include "tracker/_anime_card.html" with a=a rank=forloop.counter|add:rank_offset %}{% endfor %}
+</div>
+{% include "tracker/_pager.html" %}
+{% endblock %}

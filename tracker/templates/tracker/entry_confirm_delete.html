@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="auth-form-card">
+  <h1 class="auth-form-header">Remove {{ entry.anime.display_title }}?</h1>
+  <p>Your progress and rating for this show will be deleted.</p>
+  <form method="post" class="entry-form-actions">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, remove it</button>
+    <a href="{% url 'entry_edit' entry.pk %}" class="btn btn-ghost">Cancel</a>
+  </form>
+</section>
+{% endblock %}

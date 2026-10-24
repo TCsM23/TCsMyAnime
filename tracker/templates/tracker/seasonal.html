@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ label }} · TCsMyAnime{% endblock %}
+{% block content %}
+<div class="main-watchlist-header">
+  <a class="btn btn-ghost" href="{% url 'seasonal_for' prev_s.0 prev_s.1 %}">← {{ prev_s.1|title }} {{ prev_s.0 }}</a>
+  <h1>{{ label }}</h1>
+  <a class="btn btn-ghost" href="{% url 'seasonal_for' next_s.0 next_s.1 %}">{{ next_s.1|title }} {{ next_s.0 }} →</a>
+</div>
+<p class="catalog-page-note"><a href="{% url 'seasonal' %}">Jump to the current season</a></p>
+
+{% if error %}<p class="search-results-error">{{ error }}</p>
+{% elif not results %}<p class="search-results-empty">Nothing listed for this season yet.</p>{% endif %}
+
+<div class="catalog-grid-list">
+  {% for a in results %}{% include "tracker/_anime_card.html" with a=a %}{% endfor %}
+</div>
+{% include "tracker/_pager.html" %}
+{% endblock %}

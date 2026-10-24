@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Log in · TCsMyAnime{% endblock %}
+{% block content %}
+<section class="auth-form-card">
+  <h1 class="auth-form-header">Log in</h1>
+  <form method="post" class="auth-form-fields">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn btn-primary">Log in</button>
+  </form>
+  <p class="auth-form-switch"><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
+  <p class="auth-form-switch">No account yet? <a href="{% url 'signup' %}">Sign up</a></p>
+</section>
+{% endblock %}

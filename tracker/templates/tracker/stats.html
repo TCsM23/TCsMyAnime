@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Stats · TCsMyAnime{% endblock %}
+{% block content %}
+<h1>Your stats</h1>
+{% if not stats %}
+  <p class="main-watchlist-empty">Add some anime to your list to see stats.</p>
+{% else %}
+  <div class="stats-tiles-row">
+    <div class="stats-tiles-item"><span class="stats-tiles-value">{{ stats.total }}</span><span class="stats-tiles-label">Shows tracked</span></div>
+    <div class="stats-tiles-item"><span class="stats-tiles-value">{{ stats.completion_rate }}%</span><span class="stats-tiles-label">Completion rate<br><small>{{ stats.completed }} of {{ stats.started }} started</small></span></div>
+    <div class="stats-tiles-item"><span class="stats-tiles-value">{{ stats.episodes_watched }}</span><span class="stats-tiles-label">Episodes watched</span></div>
+    <div class="stats-tiles-item"><span class="stats-tiles-value">{{ stats.avg_rating|default:"–" }}</span><span class="stats-tiles-label">Average rating</span></div>
+  </div>
+
+  <div class="stats-charts-layout">
+    <section class="stats-charts-panel">
+      <h2>By status</h2>
+      {% for s in stats.statuses %}
+        <div class="stats-bar-row">
+          <span class="stats-bar-label">{{ s.label }}</span>
+          <div class="stats-bar-track"><span class="stats-bar-fill is-{{ s.key }}" style="width: {{ s.percent }}%"></span></div>
+          <span class="stats-bar-value">{{ s.count }}</span>
+        </div>
+      {% endfor %}
+    </section>
+
+    <section class="stats-charts-panel">
+      <h2>Top genres</h2>
+      {% for g in stats.genres %}
+        <div class="stats-bar-row">
+          <span class="stats-bar-label">{{ g.name }}</span>
+          <div class="stats-bar-track"><span class="stats-bar-fill" style="width: {{ g.percent }}%"></span></div>
+          <span class="stats-bar-value">{{ g.count }}{% if g.avg_rating %} · ★{{ g.avg_rating }}{% endif %}</span>
+        </div>
+      {% empty %}
+        <p>No genre data yet.</p>
+      {% endfor %}
+    </section>
+  </div>
+  <p class="stats-charts-note">Completion rate counts Completed out of every show except Plan to Watch.</p>
+{% endif %}
+{% endblock %}

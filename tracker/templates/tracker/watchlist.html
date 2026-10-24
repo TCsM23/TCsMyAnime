@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}My List · TCsMyAnime{% endblock %}
+{% block content %}
+<div class="main-watchlist-header">
+  <h1>My List</h1>
+  <a href="{% url 'search' %}" class="btn btn-primary">+ Add anime</a>
+</div>
+
+<nav class="main-watchlist-filters">
+  <a href="{% url 'watchlist' %}" class="{% if not active %}is-active{% endif %}">All ({{ total }})</a>
+  {% for key, label, count in statuses %}
+    <a href="?status={{ key }}" class="{% if active == key %}is-active{% endif %}">{{ label }} ({{ count }})</a>
+  {% endfor %}
+</nav>
+
+{% if entries %}
+  <div class="main-watchlist-grid">
+    {% for entry in entries %}
+      <article class="main-watchlist-card">
+        <a href="{% url 'anime_detail' entry.anime.mal_id %}">
+        {% if entry.anime.image_url %}
+          <img class="main-watchlist-card-image" src="{{ entry.anime.image_url }}" alt="" loading="lazy">
+        {% else %}
+          <div class="main-watchlist-card-image is-empty">{{ entry.anime.display_title|first|upper }}</div>
+        {% endif %}
+        </a>
+        <div class="main-watchlist-card-body">
+          <span class="status-pill is-{{ entry.status }}">{{ entry.get_status_display }}</span>
+          <h2 class="main-watchlist-card-title"><a href="{% url 'anime_detail' entry.anime.mal_id %}">{{ entry.anime.display_title }}</a></h2>
+          <p class="main-watchlist-card-meta">
+            Ep {{ entry.episodes_watched }} / {{ entry.anime.episodes|default:"?" }}
+            {% if entry.rating %} · ★ {{ entry.rating }}/10{% endif %}
+          </p>
+          {% if entry.progress_percent is not None %}
+            <div class="main-watchlist-card-progress"><span style="width: {{ entry.progress_percent }}%"></span></div>
+          {% endif %}
+          <div class="main-watchlist-card-actions">
+            {% if entry.status != "completed" %}
+              <form method="post" action="{% url 'entry_increment' entry.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-small">+1 ep</button>
+              </form>
+            {% endif %}
+            <a href="{% url 'entry_edit' entry.pk %}" class="btn btn-small btn-ghost">Edit</a>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="main-watchlist-empty">
+    <p>{% if active %}Nothing with this status yet.{% else %}Your list is empty.{% endif %}</p>
+    <a href="{% url 'seasonal' %}" class="btn btn-primary">See this season</a>
+    <a href="{% url 'search' %}" class="btn btn-ghost">Search</a>
+  </div>
+{% endif %}
+{% endblock %}

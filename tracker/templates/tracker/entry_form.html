@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ entry.anime.display_title }} · TCsMyAnime{% endblock %}
+{% block content %}
+<section class="entry-detail-layout">
+  {% if entry.anime.image_url %}
+    <img class="entry-detail-image" src="{{ entry.anime.image_url }}" alt="">
+  {% else %}
+    <div class="entry-detail-image main-watchlist-card-image is-empty">{{ entry.anime.display_title|first|upper }}</div>
+  {% endif %}
+  <div class="entry-detail-info">
+    <h1><a class="entry-detail-title-link" href="{% url 'anime_detail' entry.anime.mal_id %}">{{ entry.anime.display_title }}</a></h1>
+    <p class="entry-detail-meta">
+      {{ entry.anime.episodes|default:"?" }} episodes
+      {% if entry.anime.year %} · {{ entry.anime.year }}{% endif %}
+      {% if entry.anime.score %} · MAL {{ entry.anime.score }}{% endif %}
+      {% if entry.anime.airing_status %} · {{ entry.anime.airing_status }}{% endif %}
+    </p>
+    <p class="entry-detail-genres">
+      {% for g in entry.anime.genres.all %}<span class="entry-detail-genre-tag">{{ g.name }}</span>{% endfor %}
+    </p>
+    {% if entry.anime.synopsis %}
+      <details class="entry-detail-synopsis"><summary>Synopsis</summary><p>{{ entry.anime.synopsis|linebreaksbr }}</p></details>
+    {% endif %}
+
+    <form method="post" class="entry-form-fields">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="entry-form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{% url 'watchlist' %}" class="btn btn-ghost">Cancel</a>
+        <a href="{% url 'entry_delete' entry.pk %}" class="btn btn-danger">Remove</a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

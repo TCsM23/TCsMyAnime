@@ -1,0 +1,112 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050309">
+  <title>{% block title %}TCsMyAnime{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/tcsm-favicon.svg' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/tcsm-favicon-32.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/tcsm-favicon-180.png' %}">
+  <link rel="preload" href="{% static 'fonts/lilita-one-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <script src="{% static 'js/site.js' %}" defer></script>
+</head>
+<body>
+  <a class="base-skip-link" href="#main">Skip to content</a>
+
+  {% with n=request.resolver_match.url_name %}
+  <header class="base-header-bar" data-header>
+    <div class="base-header-inner">
+      <a class="base-nav-brand" href="{% url 'watchlist' %}" aria-label="TCsMyAnime home">
+        <img class="base-nav-logo" src="{% static 'img/tcsm-mark.svg' %}" alt="" width="44" height="44">
+        <span class="base-nav-wordmark"><span class="base-nav-wordmark-tcs">TCs</span>MyAnime</span>
+      </a>
+
+      <button class="base-nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false" data-nav-toggle>
+        <span class="base-nav-toggle-bars" aria-hidden="true"></span>
+        <span class="base-visually-hidden">Menu</span>
+      </button>
+
+      <nav class="base-nav-links" id="site-nav" data-nav>
+        <a href="{% url 'seasonal' %}" class="{% if n == 'seasonal' or n == 'seasonal_for' %}is-active{% endif %}">Seasonal</a>
+        <a href="{% url 'top' %}" class="{% if n == 'top' %}is-active{% endif %}">Top</a>
+        <a href="{% url 'browse' %}" class="{% if n == 'browse' %}is-active{% endif %}">Browse</a>
+        <a href="{% url 'search' %}" class="{% if n == 'search' %}is-active{% endif %}">Search</a>
+        {% if user.is_authenticated %}
+          <a href="{% url 'watchlist' %}" class="{% if n == 'watchlist' %}is-active{% endif %}">My List</a>
+          <a href="{% url 'stats' %}" class="{% if n == 'stats' %}is-active{% endif %}">Stats</a>
+          <div class="base-nav-account">
+            <span class="base-nav-user" title="Logged in as {{ user.username }}">{{ user.username|first|upper }}</span>
+            <form method="post" action="{% url 'logout' %}" class="base-nav-logout">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-small btn-ghost">Log out</button>
+            </form>
+          </div>
+        {% else %}
+          <div class="base-nav-account">
+            <a href="{% url 'login' %}" class="{% if n == 'login' %}is-active{% endif %}">Log in</a>
+            <a href="{% url 'signup' %}" class="btn btn-small btn-primary">Sign up</a>
+          </div>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+  {% endwith %}
+
+  <main class="base-main-container" id="main">
+    {% if messages %}
+      <ul class="base-messages-list">
+        {% for message in messages %}
+          <li class="base-messages-item is-{{ message.tags }}" data-message>
+            <span>{{ message }}</span>
+            <button type="button" class="base-messages-close" aria-label="Dismiss" data-message-close>×</button>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="base-footer-bar">
+    <div class="base-footer-inner">
+      <div class="base-footer-brand">
+        <img src="{% static 'img/tcsm-mark.svg' %}" alt="" width="56" height="56" class="base-footer-logo">
+        <div>
+          <p class="base-footer-wordmark"><span class="base-nav-wordmark-tcs">TCs</span>MyAnime</p>
+          <p class="base-footer-tagline">Track it. Rate it. It's the cat's meow.</p>
+        </div>
+      </div>
+
+      <nav class="base-footer-col" aria-label="Explore">
+        <h2 class="base-footer-heading">Explore</h2>
+        <a href="{% url 'seasonal' %}">This season</a>
+        <a href="{% url 'top' %}">Top anime</a>
+        <a href="{% url 'browse' %}">Browse</a>
+        <a href="{% url 'search' %}">Search</a>
+      </nav>
+
+      <nav class="base-footer-col" aria-label="Your account">
+        <h2 class="base-footer-heading">Your list</h2>
+        {% if user.is_authenticated %}
+          <a href="{% url 'watchlist' %}">My List</a>
+          <a href="{% url 'stats' %}">Stats</a>
+        {% else %}
+          <a href="{% url 'signup' %}">Create an account</a>
+          <a href="{% url 'login' %}">Log in</a>
+        {% endif %}
+      </nav>
+
+      <div class="base-footer-col">
+        <h2 class="base-footer-heading">TCsM</h2>
+        <a href="https://github.com/TCsM23" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.youtube.com/@tcsm0023" target="_blank" rel="noopener">YouTube</a>
+      </div>
+    </div>
+    <div class="base-footer-legal">
+      <span>© {% now "Y" %} TCsM · The Cat's Meow</span>
+      <span>Anime data from {{ anime_source }}</span>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Browse · TCsMyAnime{% endblock %}
+{% block content %}
+<h1>Browse</h1>
+<p class="catalog-page-note">
+  {{ total }} anime saved locally. The catalog grows as people use Search, Top and Seasonal,
+  or all at once with <code>python manage.py import_catalog</code>.
+</p>
+
+<form method="get" class="browse-filter-bar">
+  <input type="search" name="q" value="{{ f.q }}" placeholder="Title">
+  <select name="genre">
+    <option value="">All genres</option>
+    {% for g in genres %}<option value="{{ g.mal_id }}" {% if f.genre == g.mal_id|stringformat:"d" %}selected{% endif %}>{{ g.name }}</option>{% endfor %}
+  </select>
+  <select name="type">
+    <option value="">All types</option>
+    {% for t in types %}<option value="{{ t }}" {% if f.type == t %}selected{% endif %}>{{ t }}</option>{% endfor %}
+  </select>
+  <select name="year">
+    <option value="">Any year</option>
+    {% for y in years %}<option value="{{ y }}" {% if f.year == y|stringformat:"d" %}selected{% endif %}>{{ y }}</option>{% endfor %}
+  </select>
+  <select name="sort">
+    {% for key, label in sorts %}<option value="{{ key }}" {% if f.sort == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="btn btn-primary">Apply</button>
+</form>
+
+{% if page_obj.object_list %}
+  <div class="catalog-grid-list">
+    {% for a in page_obj %}{% include "tracker/_anime_card.html" with a=a %}{% endfor %}
+  </div>
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav class="catalog-pager-bar">
+    {% if page_obj.has_previous %}<a class="btn btn-ghost" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">← Previous</a>{% else %}<span></span>{% endif %}
+    <span class="catalog-pager-label">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a class="btn btn-ghost" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Next →</a>{% else %}<span></span>{% endif %}
+  </nav>
+  {% endif %}
+{% else %}
+  <p class="main-watchlist-empty">No saved anime match these filters. Try <a href="{% url 'search' %}?q={{ f.q|urlencode }}">searching MyAnimeList</a>.</p>
+{% endif %}
+{% endblock %}

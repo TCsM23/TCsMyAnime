@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Search · TCsMyAnime{% endblock %}
+{% block content %}
+<h1>Search anime</h1>
+<form method="get" class="search-form-bar">
+  <input type="search" name="q" value="{{ query }}" placeholder="e.g. Frieren, Cowboy Bebop" autofocus>
+  <button type="submit" class="btn btn-primary">Search</button>
+</form>
+<p class="catalog-page-note">Searches the full anime catalog ({{ anime_source }}). To filter shows already saved here, use <a href="{% url 'browse' %}">Browse</a>.</p>
+
+{% if error %}
+  <p class="search-results-error">{{ error }}</p>
+{% elif query and not results %}
+  <p class="search-results-empty">No results for “{{ query }}”.</p>
+{% endif %}
+
+<div class="catalog-grid-list">
+  {% for a in results %}{% include "tracker/_anime_card.html" with a=a %}{% endfor %}
+</div>
+{% include "tracker/_pager.html" %}
+{% endblock %}
