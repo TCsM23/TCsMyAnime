@@ -36,7 +36,11 @@
           {% endif %}
           <div class="main-watchlist-card-actions">
             {% if entry.status != "completed" %}
-              <form method="post" action="{% url 'entry_increment' entry.pk %}">
+              <form method="post" action="{% url 'entry_increment' entry.pk %}"
+                    {% if entry.anime.episodes and entry.episodes_watched|add:1 == entry.anime.episodes %}
+                    data-confirm="That's the last episode, so {{ entry.anime.display_title }} will be marked Completed."
+                    data-confirm-title="Finish this show?" data-confirm-ok="Mark completed"
+                    {% endif %}>
                 {% csrf_token %}
                 <button type="submit" class="btn btn-small">+1 ep</button>
               </form>

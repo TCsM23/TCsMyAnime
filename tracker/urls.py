@@ -17,5 +17,6 @@ urlpatterns = [
     path("browse/", views.browse, name="browse"),
     path("top/", views.top_anime, name="top"),
     path("seasonal/", views.seasonal, name="seasonal"),
+    path("seasonal/go/", views.seasonal_go, name="seasonal_go"),
     path("seasonal/<int:year>/<str:season>/", views.seasonal, name="seasonal_for"),
 ]

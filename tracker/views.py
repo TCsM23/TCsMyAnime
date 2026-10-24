@@ -107,7 +107,25 @@ def seasonal(request, year=None, season=None):
         "results": results, "error": error, "page": page, "has_next": has_next,
         "label": f"{cur_season.title()} {cur_year}", "prev_s": prev_s, "next_s": next_s, "base": "",
         "owned": _owned_ids(request.user),
+        # for the "Change season" modal
+        "cur_year": cur_year, "cur_season": cur_season, "seasons": api.SEASONS,
+        "year_choices": range(today.year + 1, FIRST_ANIME_YEAR - 1, -1),
     })
+
+
+FIRST_ANIME_YEAR = 1960
+
+
+def seasonal_go(request):
+    """Target of the season-picker modal: /seasonal/go/?year=2019&season=spring -> /seasonal/2019/spring/."""
+    season = request.GET.get("season", "")
+    try:
+        year = int(request.GET.get("year", ""))
+    except ValueError:
+        return redirect("seasonal")
+    if season not in api.SEASONS or not FIRST_ANIME_YEAR <= year <= date.today().year + 1:
+        return redirect("seasonal")
+    return redirect("seasonal_for", year=year, season=season)
 
 
 BROWSE_SORTS = {

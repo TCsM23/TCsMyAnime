@@ -1,7 +1,18 @@
+# virtual environments
 .venv/
 venv/
+env/
+
+# Python
 __pycache__/
 *.pyc
+
+# local data and build output (never commit the database: it holds users and password hashes)
 db.sqlite3
 staticfiles/
+
+# secrets
 .env
+
+# licensed font you add yourself (check its license before committing)
+static/fonts/Gagalin*

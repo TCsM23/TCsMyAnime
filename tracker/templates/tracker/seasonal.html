@@ -1,12 +1,19 @@
 {% extends "base.html" %}
 {% block title %}{{ label }} · TCsMyAnime{% endblock %}
 {% block content %}
-<div class="main-watchlist-header">
-  <a class="btn btn-ghost" href="{% url 'seasonal_for' prev_s.0 prev_s.1 %}">← {{ prev_s.1|title }} {{ prev_s.0 }}</a>
-  <h1>{{ label }}</h1>
-  <a class="btn btn-ghost" href="{% url 'seasonal_for' next_s.0 next_s.1 %}">{{ next_s.1|title }} {{ next_s.0 }} →</a>
+<div class="seasonal-header-bar">
+  <a class="btn btn-ghost seasonal-header-prev" href="{% url 'seasonal_for' prev_s.0 prev_s.1 %}" aria-label="Previous season: {{ prev_s.1|title }} {{ prev_s.0 }}">
+    ← <span class="seasonal-header-label">{{ prev_s.1|title }} {{ prev_s.0 }}</span>
+  </a>
+  <div class="seasonal-header-title">
+    <h1>{{ label }}</h1>
+    <button type="button" class="btn btn-small btn-primary" data-modal-open="season-picker">Change season</button>
+  </div>
+  <a class="btn btn-ghost seasonal-header-next" href="{% url 'seasonal_for' next_s.0 next_s.1 %}" aria-label="Next season: {{ next_s.1|title }} {{ next_s.0 }}">
+    <span class="seasonal-header-label">{{ next_s.1|title }} {{ next_s.0 }}</span> →
+  </a>
 </div>
-<p class="catalog-page-note"><a href="{% url 'seasonal' %}">Jump to the current season</a></p>
+<p class="catalog-page-note seasonal-header-note"><a href="{% url 'seasonal' %}">Jump to the current season</a></p>
 
 {% if error %}<p class="search-results-error">{{ error }}</p>
 {% elif not results %}<p class="search-results-empty">Nothing listed for this season yet.</p>{% endif %}
@@ -15,4 +22,31 @@
   {% for a in results %}{% include "tracker/_anime_card.html" with a=a %}{% endfor %}
 </div>
 {% include "tracker/_pager.html" %}
+
+{# ---------- season picker modal ---------- #}
+<dialog class="base-modal-dialog" id="season-picker" aria-labelledby="season-picker-title">
+  <form method="get" action="{% url 'seasonal_go' %}" class="base-modal-body">
+    <h2 class="base-modal-title" id="season-picker-title">Pick a season</h2>
+
+    <label for="season-picker-year">Year</label>
+    <select name="year" id="season-picker-year">
+      {% for y in year_choices %}<option value="{{ y }}" {% if y == cur_year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+    </select>
+
+    <fieldset class="seasonal-picker-seasons">
+      <legend>Season</legend>
+      {% for s in seasons %}
+        <label class="seasonal-picker-chip is-{{ s }}">
+          <input type="radio" name="season" value="{{ s }}" {% if s == cur_season %}checked{% endif %}>
+          <span>{{ s|title }}</span>
+        </label>
+      {% endfor %}
+    </fieldset>
+
+    <div class="base-modal-actions">
+      <button type="button" class="btn btn-ghost" data-modal-close>Cancel</button>
+      <button type="submit" class="btn btn-primary">Show season</button>
+    </div>
+  </form>
+</dialog>
 {% endblock %}

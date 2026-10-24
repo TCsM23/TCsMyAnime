@@ -40,4 +40,61 @@ document.addEventListener("DOMContentLoaded", () => {
     msg.querySelector("[data-message-close]")?.addEventListener("click", close);
     if (msg.classList.contains("is-success")) setTimeout(close, 5000);
   });
+
+  // ---------- modals (<dialog>) ----------
+  document.querySelectorAll("[data-modal-open]").forEach((btn) => {
+    btn.addEventListener("click", () => document.getElementById(btn.dataset.modalOpen)?.showModal());
+  });
+  document.querySelectorAll("dialog.base-modal-dialog").forEach((dlg) => {
+    dlg.querySelectorAll("[data-modal-close]").forEach((b) => b.addEventListener("click", () => dlg.close()));
+    // click on the dimmed backdrop closes the modal
+    dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  });
+
+  // ---------- confirmations ----------
+  // <form data-confirm="text" data-confirm-title="..." data-confirm-ok="..." [data-confirm-danger]>
+  // <a data-confirm="text" ...> works the same for links.
+  const confirmDlg = document.getElementById("confirm-dialog");
+  let onConfirm = null;
+  const askConfirm = (el, action) => {
+    if (!confirmDlg) return action();  // no modal on the page: just do it
+    confirmDlg.querySelector("[data-confirm-title-slot]").textContent = el.dataset.confirmTitle || "Are you sure?";
+    confirmDlg.querySelector("[data-confirm-text-slot]").textContent = el.dataset.confirm || "";
+    const ok = confirmDlg.querySelector("[data-confirm-ok-slot]");
+    ok.textContent = el.dataset.confirmOk || "Confirm";
+    ok.classList.toggle("btn-danger-solid", el.hasAttribute("data-confirm-danger"));
+    onConfirm = action;
+    confirmDlg.showModal();
+    ok.focus();
+  };
+  confirmDlg?.querySelector("[data-confirm-ok-slot]").addEventListener("click", () => {
+    confirmDlg.close();
+    const run = onConfirm;
+    onConfirm = null;
+    run?.();
+  });
+
+  document.addEventListener("submit", (e) => {
+    const form = e.target;
+    if (!form.hasAttribute("data-confirm") || form.dataset.confirmed) return;
+    e.preventDefault();
+    askConfirm(form, () => { form.dataset.confirmed = "1"; form.submit(); });
+  });
+
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("a[data-confirm]");
+    if (!link) return;
+    // data-confirm-if-dirty="#form": only ask when that form has unsaved changes
+    const watched = link.dataset.confirmIfDirty && document.querySelector(link.dataset.confirmIfDirty);
+    if (watched && !watched.dataset.dirty) return;
+    e.preventDefault();
+    askConfirm(link, () => { window.location.href = link.href; });
+  });
+
+  // mark forms dirty once something changes, so Cancel can warn about losing edits
+  document.querySelectorAll("form[data-track-dirty]").forEach((f) => {
+    const markDirty = () => { f.dataset.dirty = "1"; };
+    f.addEventListener("input", markDirty);
+    f.addEventListener("change", markDirty);
+  });
 });

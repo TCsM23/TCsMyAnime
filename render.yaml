@@ -1,0 +1,35 @@
+# Render Blueprint: in the Render dashboard choose New > Blueprint and pick this repo.
+# It creates the Postgres database and the web service, and wires DATABASE_URL between them.
+databases:
+  - name: tcsmyanime-db
+    plan: free
+    databaseName: tcsmyanime
+    user: tcsmyanime
+
+services:
+  - type: web
+    name: tcsmyanime
+    runtime: python
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: gunicorn config.wsgi:application
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tcsmyanime-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: ANIME_API
+        value: anilist
+      - key: PYTHON_VERSION
+        value: "3.13.5"
+      # Set these three yourself in the dashboard (sync: false = not stored in the repo)
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false

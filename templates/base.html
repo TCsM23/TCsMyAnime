@@ -10,6 +10,9 @@
   <link rel="apple-touch-icon" href="{% static 'img/tcsm-favicon-180.png' %}">
   <link rel="preload" href="{% static 'fonts/lilita-one-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% if gagalin_font %}
+  <style>@font-face { font-family: "Gagalin"; src: url("{% static gagalin_font.path %}") format("{{ gagalin_font.format }}"); font-display: swap; }</style>
+  {% endif %}
   <script src="{% static 'js/site.js' %}" defer></script>
 </head>
 <body>
@@ -38,7 +41,9 @@
           <a href="{% url 'stats' %}" class="{% if n == 'stats' %}is-active{% endif %}">Stats</a>
           <div class="base-nav-account">
             <span class="base-nav-user" title="Logged in as {{ user.username }}">{{ user.username|first|upper }}</span>
-            <form method="post" action="{% url 'logout' %}" class="base-nav-logout">
+            <form method="post" action="{% url 'logout' %}" class="base-nav-logout"
+                  data-confirm="You'll need to log in again to update your list."
+                  data-confirm-title="Log out of TCsMyAnime?" data-confirm-ok="Log out">
               {% csrf_token %}
               <button type="submit" class="btn btn-small btn-ghost">Log out</button>
             </form>
@@ -108,5 +113,18 @@
       <span>Anime data from {{ anime_source }}</span>
     </div>
   </footer>
+
+  {# Shared confirmation modal: any <form data-confirm="..."> opens this before submitting #}
+  <dialog class="base-modal-dialog" id="confirm-dialog" aria-labelledby="confirm-dialog-title">
+    <div class="base-modal-body">
+      <img class="base-modal-cat" src="{% static 'img/tcsm-mark.svg' %}" alt="" width="64" height="64">
+      <h2 class="base-modal-title" id="confirm-dialog-title" data-confirm-title-slot>Are you sure?</h2>
+      <p class="base-modal-text" data-confirm-text-slot></p>
+      <div class="base-modal-actions">
+        <button type="button" class="btn btn-ghost" data-modal-close>Cancel</button>
+        <button type="button" class="btn btn-primary" data-confirm-ok-slot>Confirm</button>
+      </div>
+    </div>
+  </dialog>
 </body>
 </html>

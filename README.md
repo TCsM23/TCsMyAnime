@@ -54,7 +54,7 @@ Run the tests with `python manage.py test tracker`.
 | `tracker/management/commands/import_catalog.py` | Bulk-copy the MAL catalog into the local DB |
 | `tracker/management/commands/refresh_airing.py` | Re-fetch airing shows so episode counts stay current |
 | `tracker/templates/tracker/_anime_card.html` | Shared card used by Search, Top, Seasonal, Browse |
-| `tracker/tests.py` | 24 tests (constraints, auth scoping, both API sources, catalog pages, import, stats math) |
+| `tracker/tests.py` | 29 tests (constraints, auth scoping, both API sources, catalog pages, import, season picker, confirmations, stats math) |
 
 ## Pages
 
@@ -78,20 +78,40 @@ Run the tests with `python manage.py test tracker`.
 - **`save()` auto-updates status.** Watching the last episode sets Completed; the first episode moves Plan to Watch → Watching.
 - **Completion rate** = Completed ÷ every entry except Plan to Watch. You can argue for including Plan to Watch; it changes the number a lot.
 
-## Deploying
+## Database
 
-Settings read environment variables, so nothing secret lives in the code:
+Locally the app uses SQLite (`db.sqlite3`). Set `DATABASE_URL` and it uses PostgreSQL instead, with no code changes:
 
-| Variable | Example |
-|---|---|
-| `DJANGO_SECRET_KEY` | a long random string |
-| `DJANGO_DEBUG` | `0` |
-| `DJANGO_ALLOWED_HOSTS` | `TCsM.pythonanywhere.com` |
-| `DJANGO_CSRF_TRUSTED_ORIGINS` | `https://TCsM.pythonanywhere.com` |
-| `ANIME_API` | `anilist` (default) or `jikan` |
-| `DJANGO_EMAIL_BACKEND` | `django.core.mail.backends.smtp.EmailBackend` (for real reset emails) |
+```powershell
+$env:DATABASE_URL = "postgresql://user:password@host:5432/dbname"
+python manage.py migrate
+```
 
-Then run `python manage.py collectstatic`, and schedule `refresh_airing` as a daily task.
+Tested on PostgreSQL 16. The database file is never committed (see `.gitignore`).
+
+## Deploying to Render
+
+1. Push the repo to GitHub.
+2. In Render: **New → Blueprint**, pick the repo. `render.yaml` creates a free PostgreSQL database and the web service, and connects them.
+3. When asked, fill in `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_EMAIL` and `DJANGO_SUPERUSER_PASSWORD` (your admin account, created on the first build).
+4. Each deploy runs `build.sh`: install → `collectstatic` → `migrate` → create admin if missing. gunicorn serves the site, WhiteNoise the static files.
+
+Free-plan limits: the site sleeps after 15 minutes idle (about a minute to wake), and the free database expires after 30 days. There's no shell or cron on the free plan, so run `import_catalog` / `fill_missing` / `refresh_airing` from your PC against the database's **External** URL:
+
+```powershell
+$env:DATABASE_URL = "<External Database URL from Render>"
+python manage.py import_catalog --pages 5
+Remove-Item Env:DATABASE_URL
+```
+
+| Variable | Set by | Notes |
+|---|---|---|
+| `DATABASE_URL` | Blueprint | from the Render database |
+| `DJANGO_SECRET_KEY` | Blueprint | generated |
+| `DJANGO_DEBUG` | Blueprint | `0` |
+| `ANIME_API` | Blueprint | `anilist` or `jikan` |
+| `DJANGO_SUPERUSER_*` | You | admin login |
+| `DJANGO_ALLOWED_HOSTS` | Optional | extra domains; Render's own hostname is added automatically |
 
 ## Ideas for next steps (community features)
 

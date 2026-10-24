@@ -22,14 +22,22 @@
       <details class="entry-detail-synopsis"><summary>Synopsis</summary><p>{{ entry.anime.synopsis|linebreaksbr }}</p></details>
     {% endif %}
 
-    <form method="post" class="entry-form-fields">
+    <form method="post" class="entry-form-fields" id="entry-edit-form" data-track-dirty>
       {% csrf_token %}
       {{ form.as_p }}
       <div class="entry-form-actions">
         <button type="submit" class="btn btn-primary">Save</button>
-        <a href="{% url 'watchlist' %}" class="btn btn-ghost">Cancel</a>
-        <a href="{% url 'entry_delete' entry.pk %}" class="btn btn-danger">Remove</a>
+        <a href="{% url 'watchlist' %}" class="btn btn-ghost"
+           data-confirm="Your changes to {{ entry.anime.display_title }} haven't been saved."
+           data-confirm-title="Discard changes?" data-confirm-ok="Discard" data-confirm-if-dirty="#entry-edit-form">Cancel</a>
+        <button type="submit" form="entry-delete-form" class="btn btn-danger">Remove</button>
       </div>
+    </form>
+    {# Separate form (forms can't nest); the Remove button above submits it via form="..." #}
+    <form id="entry-delete-form" method="post" action="{% url 'entry_delete' entry.pk %}"
+          data-confirm="Your progress, rating and notes for {{ entry.anime.display_title }} will be deleted. This can't be undone."
+          data-confirm-title="Remove from your list?" data-confirm-ok="Remove" data-confirm-danger>
+      {% csrf_token %}
     </form>
   </div>
 </section>

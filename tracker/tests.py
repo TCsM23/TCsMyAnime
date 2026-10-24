@@ -264,3 +264,40 @@ class AniListTests(TestCase):
         resp = self.client.get(reverse("seasonal"))
         self.assertContains(resp, "Couldn&#x27;t reach the anime database")
         self.assertEqual(mock_http.call_count, 1)  # no retries on a blocked connection
+
+
+
+class SeasonPickerAndConfirmTests(TestCase):
+    def test_season_picker_redirects(self):
+        resp = self.client.get(reverse("seasonal_go"), {"year": "2019", "season": "spring"})
+        self.assertRedirects(resp, "/seasonal/2019/spring/", fetch_redirect_response=False)
+
+    def test_season_picker_rejects_bad_input(self):
+        for params in ({"year": "abc", "season": "fall"}, {"year": "2019", "season": "monsoon"}, {"year": "1800", "season": "fall"}):
+            resp = self.client.get(reverse("seasonal_go"), params)
+            self.assertRedirects(resp, reverse("seasonal"), fetch_redirect_response=False)
+
+    @patch("tracker.services.anilist._post", return_value=anilist_page())
+    def test_seasonal_page_has_picker_modal(self, _):
+        resp = self.client.get(reverse("seasonal_for", args=[2023, "fall"]))
+        self.assertContains(resp, 'id="season-picker"')
+        self.assertContains(resp, '<option value="2023" selected>')
+
+    def test_logout_and_remove_ask_for_confirmation(self):
+        user = User.objects.create_user("zoe", password="pw-12345-abc")
+        entry = WatchlistEntry.objects.create(user=user, anime=Anime.objects.create(mal_id=7, title="Show", episodes=12))
+        self.client.login(username="zoe", password="pw-12345-abc")
+        resp = self.client.get(reverse("entry_edit", args=[entry.pk]))
+        self.assertContains(resp, 'data-confirm-title="Log out of TCsMyAnime?"')
+        self.assertContains(resp, 'data-confirm-title="Remove from your list?"')
+        self.assertContains(resp, 'data-confirm-if-dirty="#entry-edit-form"')
+        # the confirmed form POSTs straight to delete
+        self.client.post(reverse("entry_delete", args=[entry.pk]))
+        self.assertFalse(WatchlistEntry.objects.filter(pk=entry.pk).exists())
+
+    def test_last_episode_button_asks_first(self):
+        user = User.objects.create_user("max", password="pw-12345-abc")
+        WatchlistEntry.objects.create(user=user, anime=Anime.objects.create(mal_id=8, title="Short", episodes=3),
+                                      episodes_watched=2, status="watching")
+        self.client.login(username="max", password="pw-12345-abc")
+        self.assertContains(self.client.get(reverse("watchlist")), 'data-confirm-title="Finish this show?"')
