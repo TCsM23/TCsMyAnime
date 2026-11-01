@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Sign up · TCsMyAnime{% endblock %}
+{% block content %}
+<section class="auth-form-card">
+  <h1 class="auth-form-header">Create an account</h1>
+  <form method="post" class="auth-form-fields">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Sign up</button>
+  </form>
+  <p class="auth-form-switch">Already have one? <a href="{% url 'login' %}">Log in</a></p>
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+# Optional Render Blueprint: web service only. The database is external (Neon):
+# set DATABASE_URL in the Render dashboard, never in this file.
+services:
+  - type: web
+    name: tcsmyanime
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: bash build.sh
+    startCommand: gunicorn config.wsgi:application
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: ANIME_API
+        value: anilist
+      - key: PYTHON_VERSION
+        value: "3.13.5"
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false

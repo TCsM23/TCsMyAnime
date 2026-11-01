@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="56 60 400 384" width="512" height="491" role="img" aria-label="TCsM cat">
+  <title>TCsM — The Cat's Meow</title>
+<g stroke="#050309" stroke-linejoin="round" stroke-linecap="round">
+  <!-- ears -->
+  <path d="M138 236 L116 92 Q114 70 134 80 L236 158 Z" fill="#c1121f" stroke-width="14"/>
+  <path d="M374 236 L396 92 Q398 70 378 80 L276 158 Z" fill="#c1121f" stroke-width="14"/>
+  <path d="M152 206 L140 116 L206 162 Z" fill="#fdf0d5" stroke="none"/>
+  <path d="M360 206 L372 116 L306 162 Z" fill="#fdf0d5" stroke="none"/>
+  <!-- head -->
+  <path d="M100 302 C100 200 168 148 256 148 C344 148 412 200 412 302 C412 388 342 430 256 430
+           C170 430 100 388 100 302 Z" fill="#c1121f" stroke-width="14"/>
+  <!-- forehead stripes -->
+  <path d="M256 162 L256 196 M226 166 L232 192 M286 166 L280 192" stroke="#780000" stroke-width="9" fill="none"/>
+  <!-- muzzle -->
+  <path d="M256 318 C218 300 170 318 172 356 C174 392 222 406 256 384 C290 406 338 392 340 356
+           C342 318 294 300 256 318 Z" fill="#fdf0d5" stroke="none"/>
+  <!-- open eye -->
+  <ellipse cx="190" cy="270" rx="34" ry="38" fill="#fdf0d5" stroke-width="10"/>
+  <circle cx="198" cy="276" r="21" fill="#003049" stroke="none"/>
+  <circle cx="198" cy="276" r="9" fill="#050309" stroke="none"/>
+  <circle cx="208" cy="264" r="7" fill="#fdf0d5" stroke="none"/>
+  <!-- winking eye -->
+  <path d="M290 278 Q322 246 354 278" fill="none" stroke-width="12"/>
+  <path d="M296 252 L284 240 M348 252 L360 240" fill="none" stroke-width="8"/>
+  <!-- nose + mouth -->
+  <path d="M240 326 L272 326 Q268 342 256 346 Q244 342 240 326 Z" fill="#780000" stroke-width="7"/>
+  <path d="M256 346 L256 356" fill="none" stroke-width="8"/>
+  <path d="M228 356 Q242 374 256 356 Q270 374 284 356" fill="none" stroke-width="8"/>
+  <path d="M247 366 Q256 386 265 366" fill="#c1121f" stroke-width="6"/>
+  <!-- whiskers -->
+  <path d="M168 344 L70 330 M170 364 L74 376 M344 344 L442 330 M342 364 L438 376" fill="none" stroke-width="8"/>
+</g>
+
+</svg>

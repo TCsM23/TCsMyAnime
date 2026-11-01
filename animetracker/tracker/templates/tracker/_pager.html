@@ -1,0 +1,8 @@
+{# For API-backed lists: needs `page`, `has_next`, and `base` (query string without page, may be empty) #}
+{% if page > 1 or has_next %}
+<nav class="catalog-pager-bar">
+  {% if page > 1 %}<a class="btn btn-ghost" href="?{% if base %}{{ base }}&{% endif %}page={{ page|add:-1 }}">← Previous</a>{% else %}<span></span>{% endif %}
+  <span class="catalog-pager-label">Page {{ page }}</span>
+  {% if has_next %}<a class="btn btn-ghost" href="?{% if base %}{{ base }}&{% endif %}page={{ page|add:1 }}">Next →</a>{% else %}<span></span>{% endif %}
+</nav>
+{% endif %}

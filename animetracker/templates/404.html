@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Page not found · TCsMyAnime{% endblock %}
+{% block content %}
+<section class="auth-form-card">
+  <h1 class="auth-form-header">Page not found</h1>
+  <p>{% if exception %}{{ exception }}{% else %}That page does not exist.{% endif %}</p>
+  <a class="btn btn-primary" href="{% url 'seasonal' %}">Back to this season</a>
+</section>
+{% endblock %}
